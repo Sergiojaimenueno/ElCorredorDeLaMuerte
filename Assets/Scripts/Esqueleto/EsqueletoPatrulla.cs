@@ -1,4 +1,6 @@
 using UnityEngine;
+
+// Va en el objeto Esqueleto. El archivo se llama EsqueletoPatrulla.cs
 public class EsqueletoPatrulla : MonoBehaviour
 {
     public float tiempoPatrulla = 3f;
@@ -6,6 +8,7 @@ public class EsqueletoPatrulla : MonoBehaviour
     public Vector2 tamannoAtaque = new Vector2(0.4f, 0.3f);
     public float distanciaAtaque = 1.2f;
     public float distanciaVision = 4f;   // a cuánto te ve por detrás
+    public int vida = 1;               // golpes que aguanta (el jefe, 3)
     public LayerMask capaJugador;
 
     float temporizador;
@@ -91,6 +94,8 @@ public class EsqueletoPatrulla : MonoBehaviour
     public void RecibirGolpe(int danio)
     {
         if (muerto) return;            // no se muere dos veces
+        vida -= danio;                 // le quito vida
+        if (vida > 0) return;          // si aún le queda, sigue vivo
         muerto = true;
         Puntuacion.Sumar(50);
         anim.SetTrigger("Morir");      // animación de morir

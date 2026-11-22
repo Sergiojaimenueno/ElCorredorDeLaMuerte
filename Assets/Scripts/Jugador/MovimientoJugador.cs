@@ -44,6 +44,12 @@ public class MovimientoJugador : MonoBehaviour
         cuerpo.velocity = new Vector2(movimiento.x * velocidad, cuerpo.velocity.y);
     }
 
+    void OnCollisionEnter2D(Collision2D choque)
+    {
+        if (choque.GetContact(0).normal.y > 0.5f)
+            enSuelo = true;
+    }
+
     // ¿estoy tocando algo que tengo debajo?
     void OnCollisionStay2D(Collision2D choque)
     {
