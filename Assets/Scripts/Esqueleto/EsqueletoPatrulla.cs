@@ -1,11 +1,11 @@
 using UnityEngine;
-
 public class EsqueletoPatrulla : MonoBehaviour
 {
     public float tiempoPatrulla = 3f;
     public float velocidad = 1f;
     public Vector2 tamannoAtaque = new Vector2(0.4f, 0.3f);
     public float distanciaAtaque = 1.2f;
+    public float distanciaVision = 4f;   // a cuánto te ve por detrás
     public LayerMask capaJugador;
 
     float temporizador;
@@ -14,6 +14,7 @@ public class EsqueletoPatrulla : MonoBehaviour
     SpriteRenderer dibujo;
     Rigidbody2D cuerpo;
     GameObject aGolpear;
+    bool muerto;                       // ya le han matado
 
     void Start()
     {
@@ -25,6 +26,13 @@ public class EsqueletoPatrulla : MonoBehaviour
 
     void Update()
     {
+        if (muerto) return;            // muerto no hace nada
+        // si el jugador está detrás de mí, me doy la vuelta
+        RaycastHit2D detras = Physics2D.BoxCast(transform.position,
+            tamannoAtaque, 0, Vector2.right * -direccion,
+            distanciaVision, capaJugador);
+        if (detras) direccion *= -1;
+
         dibujo.flipX = direccion < 0;
         if (DetectarJugador())
         {
@@ -73,7 +81,7 @@ public class EsqueletoPatrulla : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (aGolpear != null)
+        if (muerto || aGolpear != null)
             cuerpo.velocity = new Vector2(0, cuerpo.velocity.y);
         else
             cuerpo.velocity = new Vector2(direccion * velocidad, cuerpo.velocity.y);
@@ -82,8 +90,11 @@ public class EsqueletoPatrulla : MonoBehaviour
     // Lo llama el golpe del jugador (AtaqueJugador)
     public void RecibirGolpe(int danio)
     {
+        if (muerto) return;            // no se muere dos veces
+        muerto = true;
         Puntuacion.Sumar(50);
-        Destroy(gameObject);
+        anim.SetTrigger("Morir");      // animación de morir
+        Destroy(gameObject, 1f);       // desaparece al cabo de 1 segundo
     }
 
     // Dibuja en la Scene la zona donde te ve
