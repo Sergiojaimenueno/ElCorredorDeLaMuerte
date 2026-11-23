@@ -1,20 +1,24 @@
 using UnityEngine;
 
-// Va en el objeto Demonio. Te persigue siempre y atraviesa cajas y huecos.
 public class Demonio : MonoBehaviour
 {
-    public Transform jugador;          // arrastra aquí al Jugador
+    public Transform jugador;
     public float velocidad = 2.5f;
-    public float distanciaAtaque = 2f;
+    public Vector2 tamannoAtaque = new Vector2(1.5f, 1.5f);
+    public float distanciaAtaque = 1.5f;
+    public float alturaAtaque = -1f;    // sube o baja el cuadro rojo
+    public LayerMask capaJugador;
     public bool spriteMiraDerecha = false;
-    public float velocidadVuelo = 2f;    // lo rápido que sube y baja
+    public float velocidadVuelo = 2f;
     public float alturaMinima = 3f;
 
     Rigidbody2D cuerpo;
     SpriteRenderer dibujo;
     Animator anim;
-    float alturaSuelo;                 // la Y donde empieza (el suelo)
-    float diferencia;                  // cuánto más alto está que el jugador
+    float alturaSuelo;
+    float diferencia;
+    int direccion = 1;
+    GameObject aGolpear;
 
     void Start()
     {
@@ -27,30 +31,42 @@ public class Demonio : MonoBehaviour
 
     void Update()
     {
-        // si estoy cerca del jugador, ataco
-        float distancia = Mathf.Abs(jugador.position.x - transform.position.x);
-        anim.SetBool("Atacar", distancia < distanciaAtaque);
-        // si está por encima del suelo, saca las alas
+        direccion = jugador.position.x > transform.position.x ? 1 : -1;
+        if (spriteMiraDerecha) dibujo.flipX = direccion < 0;
+        else dibujo.flipX = direccion > 0;
+
+        RaycastHit2D rayo = Physics2D.BoxCast(transform.position + Vector3.up * alturaAtaque,
+            tamannoAtaque, 0, Vector2.right * direccion,
+            distanciaAtaque, capaJugador);
+        if (rayo) aGolpear = rayo.rigidbody.gameObject;
+        else aGolpear = null;
+        anim.SetBool("Atacar", aGolpear != null);
+
         anim.SetBool("Volar", transform.position.y > alturaSuelo + 0.3f);
     }
 
     void FixedUpdate()
     {
-        // voy hacia el jugador
-        int direccion = jugador.position.x > transform.position.x ? 1 : -1;
-        // si subes (cajas, saltos), vuela hasta tu altura; nunca baja del suelo
         float alturaObjetivo = jugador.position.y + diferencia;
         if (alturaObjetivo < alturaSuelo + alturaMinima) alturaObjetivo = alturaSuelo;
         float subir = (alturaObjetivo - transform.position.y) * velocidadVuelo;
-        cuerpo.velocity = new Vector2(direccion * velocidad, subir);
-
-        if (spriteMiraDerecha) dibujo.flipX = direccion < 0;
-        else dibujo.flipX = direccion > 0;
+        if (aGolpear != null) cuerpo.velocity = new Vector2(0, subir);
+        else cuerpo.velocity = new Vector2(direccion * velocidad, subir);
     }
 
-    void OnCollisionStay2D(Collision2D choque)
+    public void Golpe()
     {
-        VidaJugador vida = choque.gameObject.GetComponent<VidaJugador>();
-        if (vida != null) vida.RecibeDanno(1);
+        if (aGolpear != null)
+        {
+            VidaJugador vida = aGolpear.GetComponent<VidaJugador>();
+            if (vida != null) vida.RecibeDanno(1);
+        }
+    }
+
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireCube(transform.position + Vector3.up * alturaAtaque
+            + Vector3.right * direccion * distanciaAtaque, tamannoAtaque);
     }
 }

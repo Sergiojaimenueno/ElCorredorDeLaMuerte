@@ -103,7 +103,9 @@ MonoBehaviour:
   tiempoPatrulla: 6
   velocidad: 2
   tamannoAtaque: {x: 2, y: 1}
-  distanciaAtaque: 1.2
+  distanciaAtaque: 3.4
+  distanciaVision: 4
+  vida: 1
   capaJugador:
     serializedVersion: 2
     m_Bits: 64
