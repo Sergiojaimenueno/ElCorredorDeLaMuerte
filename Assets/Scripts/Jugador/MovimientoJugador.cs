@@ -20,6 +20,7 @@ public class MovimientoJugador : MonoBehaviour
 
     void Update()
     {
+        anim.ResetTrigger("Saltar");
         movimiento = new Vector3();
         if (Input.GetKey(KeyCode.D))
             movimiento += new Vector3(1, 0, 0);
@@ -28,7 +29,10 @@ public class MovimientoJugador : MonoBehaviour
 
         // saltar solo si toco el suelo
         if (Input.GetKeyDown(KeyCode.Space) && enSuelo)
+        {
             cuerpo.velocity = new Vector2(cuerpo.velocity.x, fuerzaSalto);
+            anim.SetTrigger("Saltar");
+        }
 
         // mirar hacia donde ando
         if (movimiento.x != 0)
@@ -37,17 +41,13 @@ public class MovimientoJugador : MonoBehaviour
         // avisar al Animator
         anim.SetFloat("Velocidad", Mathf.Abs(movimiento.x));
         anim.SetBool("EnSuelo", enSuelo);
+        anim.SetFloat("VelocidadY", cuerpo.velocity.y);
     }
 
     void FixedUpdate()
     {
+        enSuelo = false;
         cuerpo.velocity = new Vector2(movimiento.x * velocidad, cuerpo.velocity.y);
-    }
-
-    void OnCollisionEnter2D(Collision2D choque)
-    {
-        if (choque.GetContact(0).normal.y > 0.5f)
-            enSuelo = true;
     }
 
     // ¿estoy tocando algo que tengo debajo?
@@ -55,10 +55,5 @@ public class MovimientoJugador : MonoBehaviour
     {
         if (choque.GetContact(0).normal.y > 0.5f)
             enSuelo = true;
-    }
-
-    void OnCollisionExit2D(Collision2D choque)
-    {
-        enSuelo = false;
     }
 }

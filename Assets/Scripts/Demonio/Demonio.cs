@@ -6,7 +6,7 @@ public class Demonio : MonoBehaviour
     public float velocidad = 2.5f;
     public Vector2 tamannoAtaque = new Vector2(1.5f, 1.5f);
     public float distanciaAtaque = 1.5f;
-    public float alturaAtaque = -1f;    // sube o baja el cuadro rojo
+    public float alturaAtaque = -1f;
     public LayerMask capaJugador;
     public bool spriteMiraDerecha = false;
     public float velocidadVuelo = 2f;
@@ -35,10 +35,9 @@ public class Demonio : MonoBehaviour
         if (spriteMiraDerecha) dibujo.flipX = direccion < 0;
         else dibujo.flipX = direccion > 0;
 
-        RaycastHit2D rayo = Physics2D.BoxCast(transform.position + Vector3.up * alturaAtaque,
-            tamannoAtaque, 0, Vector2.right * direccion,
-            distanciaAtaque, capaJugador);
-        if (rayo) aGolpear = rayo.rigidbody.gameObject;
+        Collider2D toque = Physics2D.OverlapBox(transform.position + Vector3.up * alturaAtaque
+            + Vector3.right * direccion * distanciaAtaque, tamannoAtaque, 0, capaJugador);
+        if (toque) aGolpear = toque.attachedRigidbody.gameObject;
         else aGolpear = null;
         anim.SetBool("Atacar", aGolpear != null);
 
