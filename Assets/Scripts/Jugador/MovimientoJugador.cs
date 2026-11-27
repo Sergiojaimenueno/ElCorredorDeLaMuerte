@@ -50,10 +50,17 @@ public class MovimientoJugador : MonoBehaviour
         cuerpo.velocity = new Vector2(movimiento.x * velocidad, cuerpo.velocity.y);
     }
 
+    // justo al aterrizar
+    void OnCollisionEnter2D(Collision2D choque)
+    {
+        OnCollisionStay2D(choque);
+    }
+
     // ¿estoy tocando algo que tengo debajo?
     void OnCollisionStay2D(Collision2D choque)
     {
-        if (choque.GetContact(0).normal.y > 0.5f)
-            enSuelo = true;
+        foreach (ContactPoint2D punto in choque.contacts)
+            if (punto.normal.y > 0.5f)
+                enSuelo = true;
     }
 }

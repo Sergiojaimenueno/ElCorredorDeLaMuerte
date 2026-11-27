@@ -29,10 +29,15 @@ public class VidaJugador : MonoBehaviour
         if (vidaRestante <= 0) Morir();
     }
 
-    public void Morir()
+    public void Morir()   
     {
-        SceneManager.LoadScene("GameOver");
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    
+        Puntuacion.puntos = 0;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
+
+
 
     public void ActivarInvencible(float segundos)
     {
